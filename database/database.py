@@ -54,3 +54,17 @@ class Database:
         update users set role=$1 where telegram_id=$2;
         """
         await self.pool.execute(query,role,telegram_id)
+
+    #Products
+
+    async def get_products(self):
+        query="""
+        select id,name,price,description from products order by id;
+        """
+        return await self.pool.fetch(query)
+    
+    async def add_product(self,name,price,description):
+        query="""
+        insert into products(name,price,description) values($1,$2,$3);
+        """
+        await self.pool.execute(query,name,int(price),description)

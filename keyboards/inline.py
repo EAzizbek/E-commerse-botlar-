@@ -28,3 +28,11 @@ def role_inline(telegram_id):
             ]
         ]
     )
+
+def inline_products(products):
+    keyboard=[]
+
+    for product in products:
+        keyboard.append([InlineKeyboardButton(text=f"{product["name"]} ({product["price"]} so'm)",callback_data=f'product_{product["id"]}')])
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
