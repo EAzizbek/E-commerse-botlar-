@@ -6,9 +6,12 @@ from states.register import RegisterState
 router=Router()
 
 @router.message(F.text=="Register")
-async def register(msg:Message,state:FSMContext):
-    await msg.answer("Registiratsiyadan o'tish uchun iltimos ismingizni kiriting!")
-    await state.set_state(RegisterState.name)
+async def register(msg:Message,state:FSMContext,db):
+    if await db.is_user_exists(msg.from_user.id):
+        await msg.answer("Siz allaqachon ro'yxatdan o'tgansz")
+    else:
+        await msg.answer("Registiratsiyadan o'tish uchun iltimos ismingizni kiriting!")
+        await state.set_state(RegisterState.name)
 
 @router.message(RegisterState.name)
 async def register(msg:Message,state:FSMContext):
@@ -29,11 +32,12 @@ async def register(msg:Message,state:FSMContext):
     await state.set_state(RegisterState.phone)
 
 @router.message(RegisterState.phone)
-async def register(msg:Message,state:FSMContext):
+async def register(msg:Message,state:FSMContext,db):
     await state.update_data(phone=msg.text)
 
     data = await state.get_data()
 
     await msg.answer(f'Ismingiz: {data['name']}\nFamilyangiz: {data["surename"]}\nYoshingiz: {data['age']}\nTelefon raqamingiz: {data["phone"]}')
+    await db.add_user(msg.from_user.id,data["name"],data["surename"],data["age"],data["phone"])
     await state.clear()
 
